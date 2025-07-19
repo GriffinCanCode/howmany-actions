@@ -44,10 +44,15 @@ inputs:
   sort-by:
     description: 'Sort results by: files, lines, code, comments, or size'
     required: false
-    default: 'lines'
+    default: 'files'
   
   descending:
     description: 'Sort in descending order'
+    required: false
+    default: 'false'
+  
+  no-interactive:
+    description: 'Disable interactive mode'
     required: false
     default: 'true'
   

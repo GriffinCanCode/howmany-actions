@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc && ncc build src/main.ts -o dist --source-map --license licenses.txt",
     "package": "ncc build src/main.ts -o dist --source-map --license licenses.txt",
-    "test": "jest",
+    "test": "node test-local.js",
+    "test-full": "node test-local.js && node test-integration.js && node test-comprehensive.js",
     "dev": "ts-node src/main.ts",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts"

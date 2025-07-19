@@ -264,7 +264,11 @@ async function generateSarifReport(results: HowManyResult, reportDir: string): P
           ]
         }
       },
-      results: []
+      results: [] as Array<{
+        ruleId: string;
+        level: 'error' | 'warning' | 'note';
+        message: { text: string };
+      }>
     }]
   };
   

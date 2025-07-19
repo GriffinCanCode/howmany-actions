@@ -19,6 +19,10 @@ export interface BasicStats {
   doc_lines: number;
   blank_lines: number;
   total_size: number;
+  average_file_size: number;
+  average_lines_per_file: number;
+  largest_file_size: number;
+  smallest_file_size: number;
   stats_by_extension: Record<string, ExtensionStats>;
 }
 
@@ -30,31 +34,43 @@ export interface ExtensionStats {
   doc_lines: number;
   blank_lines: number;
   total_size: number;
+  average_lines_per_file: number;
+  average_size_per_file: number;
 }
 
 export interface ComplexityStats {
   function_count: number;
+  class_count: number;
+  interface_count: number;
+  trait_count: number;
+  enum_count: number;
+  struct_count: number;
+  module_count: number;
+  total_structures: number;
   cyclomatic_complexity: number;
   cognitive_complexity: number;
-  max_nesting_depth: number;
+  maintainability_index: number;
   average_function_length: number;
-  total_function_lines: number;
+  max_function_length: number;
+  min_function_length: number;
+  max_nesting_depth: number;
+  average_nesting_depth: number;
+  methods_per_class: number;
   average_parameters_per_function: number;
   max_parameters_per_function: number;
-  maintainability_index: number;
+  complexity_by_extension: Record<string, any>;
   complexity_distribution: ComplexityDistribution;
   structure_distribution: StructureDistribution;
-  total_structures: number;
-  methods_per_class: number;
+  function_complexity_details: any[];
   quality_metrics: QualityMetrics;
 }
 
 export interface ComplexityDistribution {
-  very_low: number;
-  low: number;
-  medium: number;
-  high: number;
-  very_high: number;
+  very_low_complexity: number;
+  low_complexity: number;
+  medium_complexity: number;
+  high_complexity: number;
+  very_high_complexity: number;
 }
 
 export interface StructureDistribution {
@@ -78,14 +94,33 @@ export interface QualityMetrics {
 }
 
 export interface TimeStats {
+  total_time_minutes: number;
+  code_time_minutes: number;
+  doc_time_minutes: number;
+  comment_time_minutes: number;
   total_time_formatted: string;
   code_time_formatted: string;
   doc_time_formatted: string;
-  total_development_hours: number;
-  code_development_hours: number;
-  documentation_hours: number;
-  estimated_team_size: number;
-  project_maturity: string;
+  comment_time_formatted: string;
+  time_by_extension: Record<string, ExtensionTimeStats>;
+  productivity_metrics: ProductivityMetrics;
+}
+
+export interface ExtensionTimeStats {
+  total_time_minutes: number;
+  code_time_minutes: number;
+  doc_time_minutes: number;
+  comment_time_minutes: number;
+  formatted_time: string;
+  average_time_per_file: number;
+}
+
+export interface ProductivityMetrics {
+  lines_per_hour: number;
+  code_lines_per_hour: number;
+  files_per_hour: number;
+  estimated_development_days: number;
+  estimated_development_hours: number;
 }
 
 export interface RatioStats {
@@ -223,4 +258,4 @@ export interface SarifRegion {
   startColumn?: number;
   endLine?: number;
   endColumn?: number;
-} 
+}

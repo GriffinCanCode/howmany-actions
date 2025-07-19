@@ -1,0 +1,26 @@
+name: Basic Code Analysis
+on: [push, pull_request]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run HowMany Analysis
+        uses: ./
+        with:
+          path: '.'
+          output-format: 'json'
+          verbose: true
+          create-pr-comment: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload Analysis Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: howmany-analysis
+          path: howmany-reports/ 
