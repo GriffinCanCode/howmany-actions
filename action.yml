@@ -1,0 +1,143 @@
+name: 'HowMany Code Analysis'
+description: 'Analyze code complexity, quality, and generate comprehensive reports with HowMany'
+author: 'HowMany Team'
+branding:
+  icon: 'bar-chart-2'
+  color: 'blue'
+
+inputs:
+  path:
+    description: 'Directory to analyze (defaults to current directory)'
+    required: false
+    default: '.'
+  
+  output-format:
+    description: 'Output format: text, json, csv, html'
+    required: false
+    default: 'json'
+  
+  show-files:
+    description: 'Show individual file statistics'
+    required: false
+    default: 'false'
+  
+  verbose:
+    description: 'Show detailed breakdown by file extension'
+    required: false
+    default: 'true'
+  
+  max-depth:
+    description: 'Maximum directory depth to traverse'
+    required: false
+    default: ''
+  
+  extensions:
+    description: 'Only count specific file extensions (comma-separated: rs,py,js)'
+    required: false
+    default: ''
+  
+  include-hidden:
+    description: 'Include hidden files and directories'
+    required: false
+    default: 'false'
+  
+  sort-by:
+    description: 'Sort results by: files, lines, code, comments, or size'
+    required: false
+    default: 'lines'
+  
+  descending:
+    description: 'Sort in descending order'
+    required: false
+    default: 'true'
+  
+  ignore-patterns:
+    description: 'Additional patterns to ignore (comma-separated: node_modules,target,dist)'
+    required: false
+    default: ''
+  
+  # Quality Gate Options
+  fail-on-quality-gate:
+    description: 'Fail if quality gate not met'
+    required: false
+    default: 'false'
+  
+  quality-threshold:
+    description: 'Minimum overall quality score (0-100)'
+    required: false
+    default: '70'
+  
+  maintainability-threshold:
+    description: 'Minimum maintainability score (0-100)'
+    required: false
+    default: '65'
+  
+  documentation-threshold:
+    description: 'Minimum documentation coverage (0-100)'
+    required: false
+    default: '20'
+  
+  complexity-threshold:
+    description: 'Maximum average complexity per function'
+    required: false
+    default: '10'
+  
+  # Output Options
+  create-pr-comment:
+    description: 'Create or update PR comment with analysis results'
+    required: false
+    default: 'true'
+  
+  upload-sarif:
+    description: 'Upload results as SARIF format to GitHub Code Scanning'
+    required: false
+    default: 'false'
+  
+  artifact-name:
+    description: 'Name for uploaded report artifact'
+    required: false
+    default: 'howmany-report'
+  
+  # Installation Options
+  howmany-version:
+    description: 'Version of howmany to install (latest, or specific version like 0.3.2)'
+    required: false
+    default: 'latest'
+
+outputs:
+  report-path:
+    description: 'Path to generated report file'
+  
+  quality-score:
+    description: 'Overall quality score (0-100)'
+  
+  maintainability-score:
+    description: 'Maintainability index score (0-100)'
+  
+  documentation-score:
+    description: 'Documentation coverage score (0-100)'
+  
+  complexity-score:
+    description: 'Average complexity per function'
+  
+  total-files:
+    description: 'Total number of files analyzed'
+  
+  total-lines:
+    description: 'Total lines of code'
+  
+  code-lines:
+    description: 'Lines of actual code'
+  
+  comment-lines:
+    description: 'Lines of comments'
+  
+  passed:
+    description: 'Whether quality gate passed (true/false)'
+  
+  recommendations:
+    description: 'Quality improvement recommendations (JSON array)'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js' 
