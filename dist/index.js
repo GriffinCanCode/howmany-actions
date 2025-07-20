@@ -32639,9 +32639,16 @@ async function runHowManyAnalysis(howmanyPath, inputs) {
             throw new Error(`HowMany analysis failed with exit code ${exitCode}: ${errorOutput}`);
         }
         // Parse JSON output
-        const results = JSON.parse(output);
-        core.info(`✅ Analysis completed: ${results.basic.total_files} files, ${results.basic.total_lines} lines`);
-        return results;
+        try {
+            const results = JSON.parse(output);
+            core.info(`✅ Analysis completed: ${results.basic.total_files} files, ${results.basic.total_lines} lines`);
+            return results;
+        }
+        catch (parseError) {
+            core.error(`Failed to parse JSON output: ${parseError}`);
+            core.error(`Raw output: ${output.substring(0, 500)}...`);
+            throw new Error(`JSON parsing failed: ${parseError}`);
+        }
     }
     catch (error) {
         core.error(`HowMany execution failed: ${error}`);
