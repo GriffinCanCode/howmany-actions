@@ -142,6 +142,9 @@ outputs:
   
   recommendations:
     description: 'Quality improvement recommendations (JSON array)'
+  
+  sarif-file:
+    description: 'Path to generated SARIF file (when upload-sarif is enabled)'
 
 runs:
   using: 'node20'

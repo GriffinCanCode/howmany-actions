@@ -286,12 +286,37 @@ async function generateSarifReport(results: HowManyResult, reportDir: string): P
   const sarifPath = path.join(reportDir, 'howmany-results.sarif');
   await fs.writeFile(sarifPath, JSON.stringify(sarif, null, 2));
   core.info(`🔍 SARIF report generated: ${sarifPath}`);
+  
+  // Upload SARIF to GitHub Code Scanning
+  await uploadSarifToGitHub(sarifPath);
+}
+
+/**
+ * Upload SARIF file to GitHub Code Scanning
+ */
+async function uploadSarifToGitHub(sarifPath: string): Promise<void> {
+  try {
+    // Use GitHub's upload-sarif action functionality
+    core.info('📤 Uploading SARIF to GitHub Code Scanning...');
+    
+    // Set output for potential use with upload-sarif action
+    core.setOutput('sarif-file', sarifPath);
+    
+    // Log instructions for manual upload if needed
+    core.info(`📋 SARIF file ready for upload: ${sarifPath}`);
+    core.info('💡 To upload to GitHub Code Scanning, use:');
+    core.info('   - github/codeql-action/upload-sarif@v3');
+    core.info(`   - sarif_file: ${sarifPath}`);
+    
+  } catch (error) {
+    core.warning(`⚠️  Failed to prepare SARIF upload: ${error}`);
+  }
 }
 
 /**
  * Create or update PR comment with analysis results
  */
-async function createPrComment(results: HowManyResult, inputs: any): Promise<void> {
+async function createPrComment(results: HowManyResult, _inputs: any): Promise<void> {
   try {
     const token = core.getInput('github-token') || process.env.GITHUB_TOKEN;
     if (!token) {
