@@ -6,7 +6,6 @@
 export interface HowManyResult {
   basic: BasicStats;
   complexity: ComplexityStats;
-  time: TimeStats;
   ratios: RatioStats;
   metadata: StatsMetadata;
 }
@@ -91,36 +90,6 @@ export interface QualityMetrics {
   nesting_depth_health: number;
   code_duplication_ratio: number;
   technical_debt_ratio: number;
-}
-
-export interface TimeStats {
-  total_time_minutes: number;
-  code_time_minutes: number;
-  doc_time_minutes: number;
-  comment_time_minutes: number;
-  total_time_formatted: string;
-  code_time_formatted: string;
-  doc_time_formatted: string;
-  comment_time_formatted: string;
-  time_by_extension: Record<string, ExtensionTimeStats>;
-  productivity_metrics: ProductivityMetrics;
-}
-
-export interface ExtensionTimeStats {
-  total_time_minutes: number;
-  code_time_minutes: number;
-  doc_time_minutes: number;
-  comment_time_minutes: number;
-  formatted_time: string;
-  average_time_per_file: number;
-}
-
-export interface ProductivityMetrics {
-  lines_per_hour: number;
-  code_lines_per_hour: number;
-  files_per_hour: number;
-  estimated_development_days: number;
-  estimated_development_hours: number;
 }
 
 export interface RatioStats {

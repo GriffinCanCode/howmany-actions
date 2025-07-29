@@ -61,6 +61,61 @@ inputs:
     required: false
     default: ''
   
+  # New CLI and Filtering Options
+  cli-mode:
+    description: 'Use simple CLI mode for basic output'
+    required: false
+    default: 'false'
+  
+  min-lines:
+    description: 'Minimum lines per file to include'
+    required: false
+    default: ''
+  
+  max-lines:
+    description: 'Maximum lines per file to include'
+    required: false
+    default: ''
+  
+  min-size:
+    description: 'Minimum file size to include (e.g., 1KB, 500MB)'
+    required: false
+    default: ''
+  
+  max-size:
+    description: 'Maximum file size to include (e.g., 1KB, 500MB)'
+    required: false
+    default: ''
+  
+  only-languages:
+    description: 'Include only these languages (comma-separated: rs,py,js)'
+    required: false
+    default: ''
+  
+  exclude-languages:
+    description: 'Exclude these languages (comma-separated: rs,py,js)'
+    required: false
+    default: ''
+  
+  show-complexity:
+    description: 'Show complexity information in output'
+    required: false
+    default: 'false'
+  
+  show-quality:
+    description: 'Show quality metrics in output'
+    required: false
+    default: 'false'
+  show-ratios:
+    description: 'Show code ratios in output'
+    required: false
+    default: 'false'
+  
+  show-size:
+    description: 'Show size information in output'
+    required: false
+    default: 'false'
+  
   # Quality Gate Options
   fail-on-quality-gate:
     description: 'Fail if quality gate not met'

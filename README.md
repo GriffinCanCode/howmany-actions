@@ -47,6 +47,23 @@ jobs:
 | `descending` | Sort in descending order | No | `true` |
 | `ignore-patterns` | Additional ignore patterns (comma-separated) | No | |
 
+### Filtering and CLI Options
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `cli-mode` | Use simple CLI mode for basic output | No | `false` |
+| `min-lines` | Minimum lines per file to include | No | |
+| `max-lines` | Maximum lines per file to include | No | |
+| `min-size` | Minimum file size to include (e.g., 1KB, 500MB) | No | |
+| `max-size` | Maximum file size to include (e.g., 1KB, 500MB) | No | |
+| `only-languages` | Include only these languages (comma-separated) | No | |
+| `exclude-languages` | Exclude these languages (comma-separated) | No | |
+| `show-complexity` | Show complexity information in CLI mode | No | `false` |
+| `show-quality` | Show quality scores in CLI mode | No | `false` |
+| `show-time` | Show time estimates in CLI mode | No | `false` |
+| `show-ratios` | Show code ratios in CLI mode | No | `false` |
+| `show-size` | Show size information in CLI mode | No | `false` |
+
 ### Quality Gate Options
 
 | Input | Description | Required | Default |
@@ -153,12 +170,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Analyze JavaScript Frontend
+      - name: Analyze TypeScript Frontend
         uses: GriffinCanCode/howmany-action@v1
         with:
           path: './frontend'
-          extensions: 'js,ts,jsx,tsx,vue'
+          extensions: 'ts,tsx,js,jsx'
           artifact-name: 'frontend-analysis'
+```
+
+### Advanced Filtering and CLI Mode
+
+```yaml
+name: Filtered Analysis
+on: [push]
+
+jobs:
+  large-files-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze Large Files Only
+        uses: GriffinCanCode/howmany-action@v1
+        with:
+          min-lines: 100
+          min-size: '1KB'
+          only-languages: 'rs,py,ts'
+          cli-mode: true
+          show-complexity: true
+          show-quality: true
+
+  quick-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Quick Stats Check
+        uses: GriffinCanCode/howmany-action@v1
+        with:
+          cli-mode: true
+          exclude-languages: 'md,txt,json,yaml'
+          show-size: true
+          show-ratios: true
 ```
 
 ### HTML Report Generation

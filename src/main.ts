@@ -76,6 +76,19 @@ function getActionInputs() {
     descending: core.getBooleanInput('descending'),
     ignorePatterns: core.getInput('ignore-patterns'),
     
+    // New CLI and filtering options
+    cliMode: core.getBooleanInput('cli-mode'),
+    minLines: core.getInput('min-lines'),
+    maxLines: core.getInput('max-lines'),
+    minSize: core.getInput('min-size'),
+    maxSize: core.getInput('max-size'),
+    onlyLanguages: core.getInput('only-languages'),
+    excludeLanguages: core.getInput('exclude-languages'),
+    showComplexity: core.getBooleanInput('show-complexity'),
+    showQuality: core.getBooleanInput('show-quality'),
+    showRatios: core.getBooleanInput('show-ratios'),
+    showSize: core.getBooleanInput('show-size'),
+    
     // Quality gate options
     failOnQualityGate: core.getBooleanInput('fail-on-quality-gate'),
     qualityThreshold: parseFloat(core.getInput('quality-threshold') || '70'),
@@ -102,10 +115,17 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
   // Build command arguments based on inputs
   const args = [inputs.path];
   
-  // Always use JSON output for parsing
-  args.push('--output', 'json');
+  // CLI mode or JSON output
+  if (inputs.cliMode) {
+    args.push('--cli');
+  } else {
+    // Always use JSON output for parsing when not in CLI mode
+    args.push('--output', 'json');
+  }
+  
   args.push('--no-interactive'); // Disable interactive mode for CI
   
+  // Basic options
   if (inputs.showFiles) args.push('--files');
   if (inputs.verbose) args.push('--verbose');
   if (inputs.maxDepth) args.push('--depth', inputs.maxDepth);
@@ -114,6 +134,22 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
   if (inputs.sortBy) args.push('--sort', inputs.sortBy);
   if (inputs.descending) args.push('--desc');
   if (inputs.ignorePatterns) args.push('--ignore', inputs.ignorePatterns);
+  
+  // New filtering options
+  if (inputs.minLines) args.push('--min-lines', inputs.minLines);
+  if (inputs.maxLines) args.push('--max-lines', inputs.maxLines);
+  if (inputs.minSize) args.push('--min-size', inputs.minSize);
+  if (inputs.maxSize) args.push('--max-size', inputs.maxSize);
+  if (inputs.onlyLanguages) args.push('--only', inputs.onlyLanguages);
+  if (inputs.excludeLanguages) args.push('--exclude', inputs.excludeLanguages);
+  
+  // Enhanced output options (only in CLI mode)
+  if (inputs.cliMode) {
+    if (inputs.showComplexity) args.push('--show-complexity');
+    if (inputs.showQuality) args.push('--show-quality');
+    if (inputs.showRatios) args.push('--show-ratios');
+    if (inputs.showSize) args.push('--show-size');
+  }
   
   // Capture output
   let output = '';
@@ -139,16 +175,49 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
       throw new Error(`HowMany analysis failed with exit code ${exitCode}: ${errorOutput}`);
     }
     
-    // Parse JSON output
-    try {
-      const results: HowManyResult = JSON.parse(output);
-      core.info(`✅ Analysis completed: ${results.basic.total_files} files, ${results.basic.total_lines} lines`);
+    // Handle CLI mode output differently
+    if (inputs.cliMode) {
+      // Parse CLI output to create a basic result object
+      const lines = output.trim().split('\n');
+      const lastLine = lines[lines.length - 1];
+      const match = lastLine.match(/(\d+)\s+files,\s+(\d+)\s+lines/);
       
-      return results;
-    } catch (parseError) {
-      core.error(`Failed to parse JSON output: ${parseError}`);
-      core.error(`Raw output: ${output.substring(0, 500)}...`);
-      throw new Error(`JSON parsing failed: ${parseError}`);
+      if (match) {
+        // Create a minimal result object for CLI mode
+        const basicResult = {
+          basic: {
+            total_files: parseInt(match[1]),
+            total_lines: parseInt(match[2]),
+            code_lines: 0,
+            comment_lines: 0,
+            doc_lines: 0,
+            blank_lines: 0,
+            total_size: 0,
+            average_file_size: 0,
+            average_lines_per_file: 0,
+            largest_file_size: 0,
+            smallest_file_size: 0,
+            stats_by_extension: {}
+          }
+        } as unknown as HowManyResult;
+        
+        core.info(`✅ CLI Analysis completed: ${basicResult.basic.total_files} files, ${basicResult.basic.total_lines} lines`);
+        return basicResult;
+      } else {
+        throw new Error('Failed to parse CLI output');
+      }
+    } else {
+      // Parse JSON output
+      try {
+        const results: HowManyResult = JSON.parse(output);
+        core.info(`✅ Analysis completed: ${results.basic.total_files} files, ${results.basic.total_lines} lines`);
+        
+        return results;
+      } catch (parseError) {
+        core.error(`Failed to parse JSON output: ${parseError}`);
+        core.error(`Raw output: ${output.substring(0, 500)}...`);
+        throw new Error(`JSON parsing failed: ${parseError}`);
+      }
     }
     
   } catch (error) {
@@ -170,19 +239,15 @@ function setBasicOutputs(results: HowManyResult): void {
   core.setOutput('comment-lines', results.basic.comment_lines.toString());
   
   // Create summary
-  const summary = `📊 **HowMany Analysis Results**
-
-| Metric | Value |
-|--------|-------|
-| Total Files | ${results.basic.total_files.toLocaleString()} |
-| Total Lines | ${results.basic.total_lines.toLocaleString()} |
-| Code Lines | ${results.basic.code_lines.toLocaleString()} |
-| Comment Lines | ${results.basic.comment_lines.toLocaleString()} |
-| Documentation Lines | ${results.basic.doc_lines.toLocaleString()} |
-| Overall Quality Score | ${results.ratios.quality_metrics.overall_quality_score.toFixed(1)}/100 |
-| Maintainability Index | ${results.complexity.quality_metrics.maintainability_index.toFixed(1)}/100 |
-
-🕒 **Estimated Development Time:** ${results.time.total_time_formatted}`;
+  const summary = `📊 **Code Analysis Summary**
+📁 **Files:** ${results.basic.total_files}
+📏 **Total Lines:** ${results.basic.total_lines}
+💻 **Code Lines:** ${results.basic.code_lines}
+💬 **Comment Lines:** ${results.basic.comment_lines}
+📚 **Doc Lines:** ${results.basic.doc_lines}
+⬜ **Blank Lines:** ${results.basic.blank_lines}
+💾 **Total Size:** ${results.basic.total_size} bytes
+🏆 **Quality Score:** ${results.ratios.quality_metrics.overall_quality_score.toFixed(1)}/100`;
 
   core.summary.addRaw(summary);
 }
@@ -401,14 +466,8 @@ function generatePrComment(results: HowManyResult): string {
 | **Maintainability** | ${maintainability.toFixed(1)}/100 | ${maintainabilityIcon} |
 | **Documentation** | ${documentation.toFixed(1)}% | ${docIcon} |
 
-### 🕒 Development Time Estimate
-${results.time.total_time_formatted}
-
-### 🏗️ Project Structure
-${Object.entries(results.basic.stats_by_extension)
-  .slice(0, 5) // Show top 5 languages
-  .map(([ext, stats]) => `- **${ext}**: ${stats.file_count} files, ${stats.total_lines.toLocaleString()} lines`)
-  .join('\n')}
+### 🏆 Quality Metrics
+${results.ratios.quality_metrics.overall_quality_score.toFixed(1)}/100
 
 ---
 *Analysis generated by [HowMany](https://github.com/GriffinCanCode/howmany) v${results.metadata.version}*`;
