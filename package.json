@@ -1,6 +1,6 @@
 {
   "name": "howmany-action",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "GitHub Action for HowMany code analysis tool",
   "main": "dist/index.js",
   "scripts": {
