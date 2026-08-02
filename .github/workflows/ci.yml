@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, test, and verify bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # node-version-file keeps CI and local development on the single version
+      # declared in .nvmrc.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `npm run format` writes in place; CI must only report.
+      - name: Check formatting
+        run: npx prettier --check "src/**/*.ts"
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+      # A GitHub Action runs the committed bundle, not src/. A PR that edits
+      # src/ without rebuilding merges cleanly and then silently does nothing,
+      # so the bundle is rebuilt here and compared against what was committed.
+      - name: Rebuild bundle
+        run: npm run build
+
+      - name: Verify committed dist/ matches src/
+        run: |
+          if [ -n "$(git status --porcelain -- dist/)" ]; then
+            echo "::error::dist/ is out of date. Run 'npm run build' and commit the result."
+            echo "Files that differ from the committed bundle:"
+            git status --porcelain -- dist/
+            exit 1
+          fi
+          echo "dist/ matches src/."
+
+      - name: Upload rebuilt bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-rebuilt
+          path: dist/
+          retention-days: 7
+
+  action-metadata:
+    name: Validate action.yml
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure PyYAML is available
+        run: |
+          python3 -c 'import yaml' 2>/dev/null \
+            || python3 -m pip install --quiet --disable-pip-version-check pyyaml
+
+      # Every input this Action documents must be readable by the runtime, and
+      # `runs.main` must point at a file that actually exists in the bundle.
+      - name: Check action.yml is well formed
+        run: |
+          python3 - <<'PY'
+          import sys, pathlib, yaml
+
+          meta = yaml.safe_load(pathlib.Path("action.yml").read_text())
+          errors = []
+
+          for key in ("name", "description", "runs"):
+              if not meta.get(key):
+                  errors.append(f"action.yml is missing a top-level '{key}'")
+
+          runs = meta.get("runs") or {}
+          main = runs.get("main")
+          if not main:
+              errors.append("runs.main is not set")
+          elif not pathlib.Path(main).is_file():
+              errors.append(f"runs.main points at '{main}', which is not committed")
+
+          for name, spec in (meta.get("inputs") or {}).items():
+              if not (spec or {}).get("description"):
+                  errors.append(f"input '{name}' has no description")
+              if (spec or {}).get("required") and "default" in (spec or {}):
+                  errors.append(f"input '{name}' is required but also has a default")
+
+          for name, spec in (meta.get("outputs") or {}).items():
+              if not (spec or {}).get("description"):
+                  errors.append(f"output '{name}' has no description")
+
+          for e in errors:
+              print(f"::error file=action.yml::{e}")
+          sys.exit(1 if errors else 0)
+          PY
