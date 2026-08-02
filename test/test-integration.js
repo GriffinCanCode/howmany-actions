@@ -113,10 +113,19 @@ async function testTypeScriptInterfaces(jsonOutput) {
     'basic.average_file_size',
     'complexity.function_count',
     'complexity.quality_metrics.code_health_score',
-    'time.total_time_minutes',
-    'time.productivity_metrics.lines_per_hour',
+    // The four inputs the quality gate actually decides on, so a CLI that stops
+    // emitting one of them fails here rather than turning the gate into a no-op.
+    'complexity.quality_metrics.maintainability_index',
+    'complexity.quality_metrics.documentation_coverage',
+    'complexity.quality_metrics.avg_complexity',
     'ratios.quality_metrics.overall_quality_score',
     'metadata.version'
+    // There is deliberately no `time.*` entry. This list used to require
+    // `time.total_time_minutes` and `time.productivity_metrics.lines_per_hour`
+    // long after the CLI stopped emitting a `time` section at all -- the types in
+    // src/types/howmany.ts never declared one. howmany-core now pins this schema
+    // in tests/json_contract.rs, so a removal fails in the repository that makes
+    // it instead of here.
   ];
   
   for (const field of requiredFields) {
