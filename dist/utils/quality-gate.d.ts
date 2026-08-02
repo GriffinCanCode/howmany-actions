@@ -1,4 +1,4 @@
-import { HowManyResult, QualityGate, QualityGateResult } from '../types/howmany';
+import { HowManyResult, QualityGate, QualityGateResult } from '../types/howmany.js';
 export declare class QualityGateEvaluator {
     private qualityGate;
     constructor(qualityGate: QualityGate);
