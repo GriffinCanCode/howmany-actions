@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the HowMany GitHub Action! This d
 
 ### Prerequisites
 
-- Node.js 20 or higher
+- Node.js 24 or higher
 - npm or yarn
 - Git
 
@@ -75,7 +75,8 @@ When testing changes:
 ```
 howmany-action/
 ├── src/
-│   ├── main.ts                  # Main action entry point
+│   ├── index.ts                 # Bundle entry point
+│   ├── main.ts                  # Action implementation
 │   ├── types/
 │   │   └── howmany.ts          # TypeScript interfaces
 │   └── utils/

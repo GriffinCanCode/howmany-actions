@@ -22,7 +22,7 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: GriffinCanCode/howmany-action@v1
         with:
           path: '.'
@@ -116,7 +116,7 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Analyze code
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -134,7 +134,7 @@ jobs:
   quality-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Quality Gate
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -158,7 +158,7 @@ jobs:
   analyze-backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Analyze Rust Backend
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -169,7 +169,7 @@ jobs:
   analyze-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Analyze TypeScript Frontend
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -188,7 +188,7 @@ jobs:
   large-files-analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Analyze Large Files Only
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -202,7 +202,7 @@ jobs:
   quick-stats:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Quick Stats Check
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -222,7 +222,7 @@ jobs:
   reports:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Generate HTML Report
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -231,7 +231,7 @@ jobs:
           verbose: true
       
       - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: howmany-html-report
           path: howmany-reports/
@@ -249,7 +249,7 @@ jobs:
     permissions:
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Code Quality Analysis
         uses: GriffinCanCode/howmany-action@v1
         with:
@@ -273,7 +273,7 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Analyze on main branch
         if: github.ref == 'refs/heads/main'
         uses: GriffinCanCode/howmany-action@v1
@@ -306,7 +306,7 @@ jobs:
           - { name: 'docs', path: './docs', extensions: 'md,rst' }
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Analyze ${{ matrix.project.name }}
         uses: GriffinCanCode/howmany-action@v1
         with:

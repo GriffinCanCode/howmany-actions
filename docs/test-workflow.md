@@ -22,7 +22,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Run HowMany Analysis
         uses: GriffinCanCode/howmany-actions@v1
@@ -36,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload Analysis Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: howmany-analysis
           path: howmany-reports/
@@ -56,7 +56,7 @@ jobs:
       pull-requests: write
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
       - name: HowMany Quality Gate
         uses: GriffinCanCode/howmany-actions@v1
@@ -91,7 +91,7 @@ jobs:
           - { name: 'docs', path: './docs', extensions: 'md,rst' }
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
       - name: Analyze ${{ matrix.component.name }}
         uses: GriffinCanCode/howmany-actions@v1
