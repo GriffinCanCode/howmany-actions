@@ -32780,11 +32780,7 @@ async function generateHtmlReport(results, reportDir) {
     try {
         core.info('📊 Generating HTML report...');
         // Run HowMany again with HTML output
-        const htmlArgs = [
-            core.getInput('path') || '.',
-            '--output', 'html',
-            '--no-interactive'
-        ];
+        const htmlArgs = [core.getInput('path') || '.', '--output', 'html', '--no-interactive'];
         await exec.exec('howmany', htmlArgs, { cwd: process.cwd() });
         // Move the generated HTML file to reports directory
         const defaultHtmlPath = 'howmany-report.html';
@@ -32811,7 +32807,8 @@ async function generateSarifReport(results, reportDir) {
     const sarif = {
         version: '2.1.0',
         $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
-        runs: [{
+        runs: [
+            {
                 tool: {
                     driver: {
                         name: 'HowMany',
@@ -32821,16 +32818,23 @@ async function generateSarifReport(results, reportDir) {
                             {
                                 id: 'quality-score-low',
                                 name: 'Low Quality Score',
-                                shortDescription: { text: 'Overall code quality score is below recommended threshold' },
-                                fullDescription: { text: 'The overall quality score indicates potential maintainability issues' },
-                                help: { text: 'Improve code quality by addressing complexity, documentation, and maintainability issues' },
+                                shortDescription: {
+                                    text: 'Overall code quality score is below recommended threshold'
+                                },
+                                fullDescription: {
+                                    text: 'The overall quality score indicates potential maintainability issues'
+                                },
+                                help: {
+                                    text: 'Improve code quality by addressing complexity, documentation, and maintainability issues'
+                                },
                                 defaultConfiguration: { level: 'warning' }
                             }
                         ]
                     }
                 },
                 results: []
-            }]
+            }
+        ]
     };
     // Add quality issues as SARIF results
     if (results.ratios.quality_metrics.overall_quality_score < 70) {
