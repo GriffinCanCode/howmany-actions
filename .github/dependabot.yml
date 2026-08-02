@@ -11,6 +11,18 @@ updates:
     commit-message:
       prefix: "deps"
       prefix-development: "deps-dev"
+    ignore:
+      # @types/node describes the runtime named in action.yml, not the newest
+      # Node on npm. There is no node26 runner, so typing against it would let
+      # code compile that crashes on the job. Its major moves when runs.using
+      # moves; patches within the major are still welcome.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # TypeScript 7 is the native port and ships no programmatic compiler API
+      # until 7.1, so typescript-eslint's peer range (<6.1.0) rejects it and the
+      # install fails outright. Lift this once 7.1 restores the API.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       # The @actions/* toolkit moves together; one PR is easier to verify
       # against the rebuilt dist/ bundle than five.
