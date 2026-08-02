@@ -12,8 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationMap": true,
+    // No declarations: nothing consumes them, and ncc copies the .d.ts.map into
+    // the committed bundle with an absolute file:// path to whichever machine
+    // built it, which no rebuild elsewhere can ever reproduce.
     "sourceMap": true,
     "removeComments": false,
     "moduleResolution": "nodenext"
