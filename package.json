@@ -28,13 +28,13 @@
   "author": "HowMany Team",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.1",
-    "@actions/exec": "^1.1.1",
-    "@actions/github": "^6.0.0",
-    "@actions/glob": "^0.4.0",
-    "@actions/io": "^1.1.3",
-    "@actions/tool-cache": "^2.0.1",
-    "@octokit/rest": "^20.0.2"
+    "@actions/core": "^3.0.1",
+    "@actions/exec": "^3.0.0",
+    "@actions/github": "^9.1.1",
+    "@actions/glob": "^0.7.0",
+    "@actions/io": "^3.0.2",
+    "@actions/tool-cache": "^4.0.0",
+    "@octokit/rest": "^22.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
