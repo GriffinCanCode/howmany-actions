@@ -1,0 +1,27 @@
+# Normalize line endings on checkin; check out with native endings.
+* text=auto eol=lf
+
+*.ts      text
+*.js      text
+*.json    text
+*.md      text diff=markdown
+*.yml     text
+*.yaml    text
+*.sh      text eol=lf
+*.bat     text eol=crlf
+
+*.png     binary
+*.jpg     binary
+*.ico     binary
+
+# `dist/` is the committed ncc bundle the Action actually runs. It must stay in
+# the repo, but it is machine-authored: keep it out of diffs and PR reviews.
+dist/**             linguist-generated=true -diff
+package-lock.json   linguist-generated=true -diff
+
+/.github/        export-ignore
+/.gitattributes  export-ignore
+/.gitignore      export-ignore
+/.editorconfig   export-ignore
+/.vscode/        export-ignore
+test-*.js        export-ignore
