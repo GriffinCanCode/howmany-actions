@@ -13,11 +13,10 @@ updates:
       prefix-development: "deps-dev"
     groups:
       # The @actions/* toolkit moves together; one PR is easier to verify
-      # against the rebuilt dist/ bundle than six.
+      # against the rebuilt dist/ bundle than five.
       actions-toolkit:
         patterns:
           - "@actions/*"
-          - "@octokit/*"
       dev-tooling:
         dependency-type: development
         patterns:

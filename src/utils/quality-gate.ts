@@ -1,5 +1,10 @@
 import * as core from '@actions/core';
-import { HowManyResult, QualityGate, QualityGateResult, QualityViolation } from '../types/howmany';
+import {
+  HowManyResult,
+  QualityGate,
+  QualityGateResult,
+  QualityViolation
+} from '../types/howmany.js';
 
 export class QualityGateEvaluator {
   private qualityGate: QualityGate;

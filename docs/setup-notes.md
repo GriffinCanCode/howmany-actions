@@ -15,7 +15,7 @@ howmany-action/
 │   └── README.md              # Comprehensive documentation (376 lines)
 │
 ├── 🔧 Configuration
-│   ├── .eslintrc.js           # ESLint configuration
+│   ├── eslint.config.js       # ESLint flat configuration
 │   ├── .prettierrc.json      # Prettier formatting rules
 │   └── .gitignore             # Git ignore patterns
 │
@@ -36,6 +36,7 @@ howmany-action/
 │
 ├── 📦 Source Code
 │   └── src/
+│       ├── index.ts          # Bundle entry point
 │       ├── main.ts           # Main action orchestration (387 lines)
 │       ├── types/
 │       │   └── howmany.ts    # TypeScript interfaces (226 lines)
@@ -113,7 +114,7 @@ All tests passed successfully:
 
 The action is now ready for:
 
-1. **Local Testing**: Use `node test/test-local.js` to verify
+1. **Local Testing**: Use `node test/test-local.cjs` to verify
 2. **Repository Integration**: Test with real repositories
 3. **GitHub Marketplace**: Publish when ready
 4. **CI/CD Integration**: Use in workflows immediately
@@ -121,7 +122,7 @@ The action is now ready for:
 ## 📊 Metrics
 
 - **Total Lines of Code**: 973 lines across 4 TypeScript files
-- **Dependencies**: 6 production, 8 development packages
+- **Dependencies**: 5 production, 8 development packages
 - **Bundle Size**: 1.2MB (includes all dependencies)
 - **Documentation**: Comprehensive README with 15+ examples
 - **Test Coverage**: All critical paths tested
@@ -136,7 +137,7 @@ npm install
 npm run build
 
 # Run local tests
-node test/test-local.js
+node test/test-local.cjs
 
 # Code quality
 npm run lint

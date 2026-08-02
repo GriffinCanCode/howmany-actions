@@ -4,11 +4,12 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Run action locally (ts-node)",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "program": "${workspaceFolder}/src/main.ts",
+      "name": "Run action locally (compiled)",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/lib/index.js",
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
+      "sourceMaps": true,
       "skipFiles": ["<node_internals>/**"]
     },
     {

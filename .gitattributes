@@ -3,6 +3,7 @@
 
 *.ts      text
 *.js      text
+*.cjs     text
 *.json    text
 *.md      text diff=markdown
 *.yml     text
@@ -24,4 +25,4 @@ package-lock.json   linguist-generated=true -diff
 /.gitignore      export-ignore
 /.editorconfig   export-ignore
 /.vscode/        export-ignore
-test-*.js        export-ignore
+test-*.cjs       export-ignore

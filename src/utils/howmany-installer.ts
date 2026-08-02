@@ -29,7 +29,7 @@ export class HowManyInstaller {
       return howmanyPath;
     } catch (error) {
       core.error(`Failed to install HowMany: ${error}`);
-      throw new Error(`Installation failed: ${error}`);
+      throw new Error(`Installation failed: ${error}`, { cause: error });
     }
   }
 
@@ -65,7 +65,7 @@ export class HowManyInstaller {
     try {
       await exec.exec('cargo', ['--version'], { silent: true });
       core.info('✅ Cargo is available');
-    } catch (error) {
+    } catch {
       core.info('Cargo not found, installing Rust toolchain...');
       await this.installRustToolchain();
     }
@@ -137,7 +137,7 @@ export class HowManyInstaller {
         }
       }
 
-      throw new Error('HowMany installation could not be verified');
+      throw new Error('HowMany installation could not be verified', { cause: error });
     }
   }
 
