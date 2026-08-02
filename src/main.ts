@@ -14,45 +14,44 @@ import { HowManyResult } from './types/howmany';
 async function run(): Promise<void> {
   try {
     core.info('🚀 Starting HowMany Code Analysis');
-    
+
     // Get inputs
     const inputs = getActionInputs();
     core.info(`Analyzing path: ${inputs.path}`);
-    
+
     // Install HowMany
     const installer = new HowManyInstaller(inputs.howmanyVersion);
     const howmanyPath = await installer.install();
-    
+
     // Run analysis
     const results = await runHowManyAnalysis(howmanyPath, inputs);
-    
+
     // Set basic outputs
     setBasicOutputs(results);
-    
+
     // Evaluate quality gate if enabled
     if (inputs.failOnQualityGate) {
       const qualityGate = QualityGateEvaluator.fromInputs();
       const evaluator = new QualityGateEvaluator(qualityGate);
       const gateResult = evaluator.evaluate(results);
-      
+
       evaluator.logResult(gateResult);
-      
+
       if (!gateResult.passed) {
         core.setFailed('Quality gate failed');
         return;
       }
     }
-    
+
     // Generate reports and artifacts
     await generateReports(results, inputs);
-    
+
     // Create PR comment if enabled
     if (inputs.createPrComment && github.context.eventName === 'pull_request') {
       await createPrComment(results, inputs);
     }
-    
+
     core.info('✅ HowMany analysis completed successfully');
-    
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     core.error(`Action failed: ${errorMessage}`);
@@ -75,7 +74,7 @@ function getActionInputs() {
     sortBy: core.getInput('sort-by') || 'lines',
     descending: core.getBooleanInput('descending'),
     ignorePatterns: core.getInput('ignore-patterns'),
-    
+
     // New CLI and filtering options
     cliMode: core.getBooleanInput('cli-mode'),
     minLines: core.getInput('min-lines'),
@@ -88,19 +87,19 @@ function getActionInputs() {
     showQuality: core.getBooleanInput('show-quality'),
     showRatios: core.getBooleanInput('show-ratios'),
     showSize: core.getBooleanInput('show-size'),
-    
+
     // Quality gate options
     failOnQualityGate: core.getBooleanInput('fail-on-quality-gate'),
     qualityThreshold: parseFloat(core.getInput('quality-threshold') || '70'),
     maintainabilityThreshold: parseFloat(core.getInput('maintainability-threshold') || '65'),
     documentationThreshold: parseFloat(core.getInput('documentation-threshold') || '20'),
     complexityThreshold: parseFloat(core.getInput('complexity-threshold') || '10'),
-    
+
     // Output options
     createPrComment: core.getBooleanInput('create-pr-comment'),
     uploadSarif: core.getBooleanInput('upload-sarif'),
     artifactName: core.getInput('artifact-name') || 'howmany-report',
-    
+
     // Installation options
     howmanyVersion: core.getInput('howmany-version') || 'latest'
   };
@@ -111,10 +110,10 @@ function getActionInputs() {
  */
 async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<HowManyResult> {
   core.info('📊 Running HowMany analysis...');
-  
+
   // Build command arguments based on inputs
   const args = [inputs.path];
-  
+
   // CLI mode or JSON output
   if (inputs.cliMode) {
     args.push('--cli');
@@ -122,9 +121,9 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
     // Always use JSON output for parsing when not in CLI mode
     args.push('--output', 'json');
   }
-  
+
   args.push('--no-interactive'); // Disable interactive mode for CI
-  
+
   // Basic options
   if (inputs.showFiles) args.push('--files');
   if (inputs.verbose) args.push('--verbose');
@@ -134,7 +133,7 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
   if (inputs.sortBy) args.push('--sort', inputs.sortBy);
   if (inputs.descending) args.push('--desc');
   if (inputs.ignorePatterns) args.push('--ignore', inputs.ignorePatterns);
-  
+
   // New filtering options
   if (inputs.minLines) args.push('--min-lines', inputs.minLines);
   if (inputs.maxLines) args.push('--max-lines', inputs.maxLines);
@@ -142,7 +141,7 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
   if (inputs.maxSize) args.push('--max-size', inputs.maxSize);
   if (inputs.onlyLanguages) args.push('--only', inputs.onlyLanguages);
   if (inputs.excludeLanguages) args.push('--exclude', inputs.excludeLanguages);
-  
+
   // Enhanced output options (only in CLI mode)
   if (inputs.cliMode) {
     if (inputs.showComplexity) args.push('--show-complexity');
@@ -150,11 +149,11 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
     if (inputs.showRatios) args.push('--show-ratios');
     if (inputs.showSize) args.push('--show-size');
   }
-  
+
   // Capture output
   let output = '';
   let errorOutput = '';
-  
+
   const options = {
     listeners: {
       stdout: (data: Buffer) => {
@@ -167,21 +166,21 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
     ignoreReturnCode: false,
     silent: true
   };
-  
+
   try {
     const exitCode = await exec.exec(howmanyPath, args, options);
-    
+
     if (exitCode !== 0) {
       throw new Error(`HowMany analysis failed with exit code ${exitCode}: ${errorOutput}`);
     }
-    
+
     // Handle CLI mode output differently
     if (inputs.cliMode) {
       // Parse CLI output to create a basic result object
       const lines = output.trim().split('\n');
       const lastLine = lines[lines.length - 1];
       const match = lastLine.match(/(\d+)\s+files,\s+(\d+)\s+lines/);
-      
+
       if (match) {
         // Create a minimal result object for CLI mode
         const basicResult = {
@@ -200,8 +199,10 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
             stats_by_extension: {}
           }
         } as unknown as HowManyResult;
-        
-        core.info(`✅ CLI Analysis completed: ${basicResult.basic.total_files} files, ${basicResult.basic.total_lines} lines`);
+
+        core.info(
+          `✅ CLI Analysis completed: ${basicResult.basic.total_files} files, ${basicResult.basic.total_lines} lines`
+        );
         return basicResult;
       } else {
         throw new Error('Failed to parse CLI output');
@@ -210,8 +211,10 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
       // Parse JSON output
       try {
         const results: HowManyResult = JSON.parse(output);
-        core.info(`✅ Analysis completed: ${results.basic.total_files} files, ${results.basic.total_lines} lines`);
-        
+        core.info(
+          `✅ Analysis completed: ${results.basic.total_files} files, ${results.basic.total_lines} lines`
+        );
+
         return results;
       } catch (parseError) {
         core.error(`Failed to parse JSON output: ${parseError}`);
@@ -219,7 +222,6 @@ async function runHowManyAnalysis(howmanyPath: string, inputs: any): Promise<How
         throw new Error(`JSON parsing failed: ${parseError}`);
       }
     }
-    
   } catch (error) {
     core.error(`HowMany execution failed: ${error}`);
     if (errorOutput) {
@@ -237,7 +239,7 @@ function setBasicOutputs(results: HowManyResult): void {
   core.setOutput('total-lines', results.basic.total_lines.toString());
   core.setOutput('code-lines', results.basic.code_lines.toString());
   core.setOutput('comment-lines', results.basic.comment_lines.toString());
-  
+
   // Create summary
   const summary = `📊 **Code Analysis Summary**
 📁 **Files:** ${results.basic.total_files}
@@ -258,18 +260,18 @@ function setBasicOutputs(results: HowManyResult): void {
 async function generateReports(results: HowManyResult, inputs: any): Promise<void> {
   const reportDir = 'howmany-reports';
   await fs.mkdir(reportDir, { recursive: true });
-  
+
   // Generate JSON report
   const jsonReportPath = path.join(reportDir, 'howmany-analysis.json');
   await fs.writeFile(jsonReportPath, JSON.stringify(results, null, 2));
   core.setOutput('report-path', jsonReportPath);
   core.info(`📄 JSON report generated: ${jsonReportPath}`);
-  
+
   // Generate additional formats if requested
   if (inputs.outputFormat === 'html') {
     await generateHtmlReport(results, reportDir);
   }
-  
+
   if (inputs.uploadSarif) {
     await generateSarifReport(results, reportDir);
   }
@@ -281,20 +283,16 @@ async function generateReports(results: HowManyResult, inputs: any): Promise<voi
 async function generateHtmlReport(results: HowManyResult, reportDir: string): Promise<void> {
   try {
     core.info('📊 Generating HTML report...');
-    
+
     // Run HowMany again with HTML output
-    const htmlArgs = [
-      core.getInput('path') || '.',
-      '--output', 'html',
-      '--no-interactive'
-    ];
-    
+    const htmlArgs = [core.getInput('path') || '.', '--output', 'html', '--no-interactive'];
+
     await exec.exec('howmany', htmlArgs, { cwd: process.cwd() });
-    
+
     // Move the generated HTML file to reports directory
     const defaultHtmlPath = 'howmany-report.html';
     const targetHtmlPath = path.join(reportDir, 'howmany-analysis.html');
-    
+
     try {
       await fs.access(defaultHtmlPath);
       await fs.rename(defaultHtmlPath, targetHtmlPath);
@@ -302,7 +300,6 @@ async function generateHtmlReport(results: HowManyResult, reportDir: string): Pr
     } catch {
       core.warning('HTML report generation may have failed - file not found');
     }
-    
   } catch (error) {
     core.warning(`Failed to generate HTML report: ${error}`);
   }
@@ -316,33 +313,42 @@ async function generateSarifReport(results: HowManyResult, reportDir: string): P
   // In a full implementation, you'd want to map specific quality issues to code locations
   const sarif = {
     version: '2.1.0',
-    $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
-    runs: [{
-      tool: {
-        driver: {
-          name: 'HowMany',
-          version: results.metadata.version,
-          informationUri: 'https://github.com/GriffinCanCode/howmany',
-          rules: [
-            {
-              id: 'quality-score-low',
-              name: 'Low Quality Score',
-              shortDescription: { text: 'Overall code quality score is below recommended threshold' },
-              fullDescription: { text: 'The overall quality score indicates potential maintainability issues' },
-              help: { text: 'Improve code quality by addressing complexity, documentation, and maintainability issues' },
-              defaultConfiguration: { level: 'warning' }
-            }
-          ]
-        }
-      },
-      results: [] as Array<{
-        ruleId: string;
-        level: 'error' | 'warning' | 'note';
-        message: { text: string };
-      }>
-    }]
+    $schema:
+      'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+    runs: [
+      {
+        tool: {
+          driver: {
+            name: 'HowMany',
+            version: results.metadata.version,
+            informationUri: 'https://github.com/GriffinCanCode/howmany',
+            rules: [
+              {
+                id: 'quality-score-low',
+                name: 'Low Quality Score',
+                shortDescription: {
+                  text: 'Overall code quality score is below recommended threshold'
+                },
+                fullDescription: {
+                  text: 'The overall quality score indicates potential maintainability issues'
+                },
+                help: {
+                  text: 'Improve code quality by addressing complexity, documentation, and maintainability issues'
+                },
+                defaultConfiguration: { level: 'warning' }
+              }
+            ]
+          }
+        },
+        results: [] as Array<{
+          ruleId: string;
+          level: 'error' | 'warning' | 'note';
+          message: { text: string };
+        }>
+      }
+    ]
   };
-  
+
   // Add quality issues as SARIF results
   if (results.ratios.quality_metrics.overall_quality_score < 70) {
     sarif.runs[0].results.push({
@@ -353,11 +359,11 @@ async function generateSarifReport(results: HowManyResult, reportDir: string): P
       }
     });
   }
-  
+
   const sarifPath = path.join(reportDir, 'howmany-results.sarif');
   await fs.writeFile(sarifPath, JSON.stringify(sarif, null, 2));
   core.info(`🔍 SARIF report generated: ${sarifPath}`);
-  
+
   // Upload SARIF to GitHub Code Scanning
   await uploadSarifToGitHub(sarifPath);
 }
@@ -369,16 +375,15 @@ async function uploadSarifToGitHub(sarifPath: string): Promise<void> {
   try {
     // Use GitHub's upload-sarif action functionality
     core.info('📤 Uploading SARIF to GitHub Code Scanning...');
-    
+
     // Set output for potential use with upload-sarif action
     core.setOutput('sarif-file', sarifPath);
-    
+
     // Log instructions for manual upload if needed
     core.info(`📋 SARIF file ready for upload: ${sarifPath}`);
     core.info('💡 To upload to GitHub Code Scanning, use:');
     core.info('   - github/codeql-action/upload-sarif@v3');
     core.info(`   - sarif_file: ${sarifPath}`);
-    
   } catch (error) {
     core.warning(`⚠️  Failed to prepare SARIF upload: ${error}`);
   }
@@ -394,29 +399,29 @@ async function createPrComment(results: HowManyResult, _inputs: any): Promise<vo
       core.warning('GitHub token not provided, skipping PR comment');
       return;
     }
-    
+
     const octokit = github.getOctokit(token);
     const { owner, repo } = github.context.repo;
     const pullNumber = github.context.payload.pull_request?.number;
-    
+
     if (!pullNumber) {
       core.warning('Not a pull request, skipping PR comment');
       return;
     }
-    
+
     const comment = generatePrComment(results);
-    
+
     // Check if we already have a comment
     const comments = await octokit.rest.issues.listComments({
       owner,
       repo,
       issue_number: pullNumber
     });
-    
-    const existingComment = comments.data.find(
-      comment => comment.body?.includes('<!-- HowMany Analysis -->')
+
+    const existingComment = comments.data.find(comment =>
+      comment.body?.includes('<!-- HowMany Analysis -->')
     );
-    
+
     if (existingComment) {
       // Update existing comment
       await octokit.rest.issues.updateComment({
@@ -436,7 +441,6 @@ async function createPrComment(results: HowManyResult, _inputs: any): Promise<vo
       });
       core.info('📝 Created new PR comment');
     }
-    
   } catch (error) {
     core.warning(`Failed to create PR comment: ${error}`);
   }
@@ -449,11 +453,11 @@ function generatePrComment(results: HowManyResult): string {
   const qualityScore = results.ratios.quality_metrics.overall_quality_score;
   const maintainability = results.complexity.quality_metrics.maintainability_index;
   const documentation = results.complexity.quality_metrics.documentation_coverage;
-  
+
   const qualityIcon = qualityScore >= 80 ? '🟢' : qualityScore >= 60 ? '🟡' : '🔴';
   const maintainabilityIcon = maintainability >= 70 ? '🟢' : maintainability >= 50 ? '🟡' : '🔴';
   const docIcon = documentation >= 25 ? '🟢' : documentation >= 15 ? '🟡' : '🔴';
-  
+
   return `<!-- HowMany Analysis -->
 ## 📊 HowMany Code Analysis
 
@@ -478,4 +482,4 @@ if (require.main === module) {
   run();
 }
 
-export { run }; 
+export { run };
