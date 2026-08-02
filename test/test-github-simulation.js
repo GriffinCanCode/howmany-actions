@@ -240,7 +240,7 @@ async function generateFinalReport() {
     metrics: {
       bundle_size_mb: (fs.statSync('./dist/index.js').size / (1024 * 1024)).toFixed(2),
       source_files: fs.readdirSync('./src', { recursive: true }).length,
-      total_dependencies: Object.keys(require('./package.json').dependencies || {}).length
+      total_dependencies: Object.keys(require('../package.json').dependencies || {}).length
     }
   };
   

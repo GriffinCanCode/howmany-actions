@@ -117,7 +117,7 @@ async function testQualityThresholds() {
   console.log('\n4️⃣ Testing quality gate thresholds...');
   
   // Load the quality gate module
-  const { QualityGateEvaluator } = require('./lib/utils/quality-gate.js');
+  const { QualityGateEvaluator } = require('../lib/utils/quality-gate.js');
   
   // Get sample data
   const howmanyPath = '../howmany-core/target/release/howmany';

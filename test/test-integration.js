@@ -134,7 +134,7 @@ async function testQualityGateLogic(jsonOutput) {
   console.log('\n4️⃣ Testing quality gate logic...');
   
   // Mock the quality gate evaluator
-  const QualityGateEvaluator = require('./lib/utils/quality-gate.js').QualityGateEvaluator;
+  const QualityGateEvaluator = require('../lib/utils/quality-gate.js').QualityGateEvaluator;
   
   const qualityGate = {
     overall_quality_threshold: 70,

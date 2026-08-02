@@ -22,10 +22,10 @@ howmany-action/
 ├── 📝 Documentation
 │   ├── LICENSE                # MIT license
 │   ├── CONTRIBUTING.md        # Contribution guidelines
-│   └── SETUP_COMPLETE.md      # This file
+│   └── docs/setup-notes.md    # This file
 │
 ├── 🧪 Testing
-│   └── test-local.js          # Local testing script
+│   └── test/                  # Test scripts (see test/README.md)
 │
 ├── 🏗️ Build Output
 │   ├── dist/                  # Compiled JavaScript (1.2MB)
@@ -113,7 +113,7 @@ All tests passed successfully:
 
 The action is now ready for:
 
-1. **Local Testing**: Use `node test-local.js` to verify
+1. **Local Testing**: Use `node test/test-local.js` to verify
 2. **Repository Integration**: Test with real repositories
 3. **GitHub Marketplace**: Publish when ready
 4. **CI/CD Integration**: Use in workflows immediately
@@ -136,7 +136,7 @@ npm install
 npm run build
 
 # Run local tests
-node test-local.js
+node test/test-local.js
 
 # Code quality
 npm run lint
@@ -150,7 +150,7 @@ npm run dev
 
 The action leverages HowMany's actual source code structure:
 
-- **CLI Integration**: Based on `src/ui/cli/mod.rs`
+- **CLI Integration**: Based on `src/ui/cli.rs`
 - **Quality Metrics**: From `src/core/stats/ratios/quality.rs`
 - **Data Structures**: Matching `src/core/stats/aggregation/`
 - **Output Formats**: Supporting all `src/core/stats/formatting.rs` options
