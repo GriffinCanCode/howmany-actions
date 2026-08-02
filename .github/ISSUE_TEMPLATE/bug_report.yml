@@ -1,0 +1,70 @@
+name: Bug report
+description: The Action fails or behaves differently than documented.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        If the problem is with the analysis *results* rather than the Action
+        wiring, please file it on the
+        [howmany core repo](https://github.com/GriffinCanCode/howmany/issues)
+        instead.
+
+  - type: input
+    id: version
+    attributes:
+      label: Action version
+      description: The ref you pin in `uses:`.
+      placeholder: "GriffinCanCode/howmany-actions@v2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runner
+    attributes:
+      label: Runner
+      options:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+        - Self-hosted
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow step
+      description: The `uses:` block and its `with:` inputs.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Run logs
+      description: >
+        Paste the failing step's output. Re-run with `ACTIONS_STEP_DEBUG` set to
+        `true` for more detail. **Redact any tokens or private paths.**
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to happen
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for a duplicate.
+          required: true
+        - label: I confirmed no secrets or tokens appear in the logs I pasted.
+          required: true

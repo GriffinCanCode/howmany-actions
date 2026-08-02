@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest a new input, output, or behavior for the Action.
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the CI workflow you are trying to build.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: If it adds an input or output, sketch the `with:` block.
+      render: yaml
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this touch?
+      multiple: true
+      options:
+        - Action inputs / outputs
+        - PR comments and annotations
+        - Quality gates and thresholds
+        - Job summary output
+        - SARIF / code scanning upload
+        - Caching and performance
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for a duplicate.
+          required: true
+        - label: This belongs in the Action, not in the howmany CLI itself.
+          required: true
